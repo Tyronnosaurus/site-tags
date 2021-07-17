@@ -1,0 +1,35 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100%; /*Percentage of sidepanel's height occupied*/
+  font: caption;
+  background-color: #F4F7F8;
+}
+
+p {
+  margin: 1em 2em;
+}
+
+#content {
+  height: 90%; /*Percentage of body occupied by textbox*/
+  margin: 2em 2em 0 2em;
+  border: .5em solid #DDE4E9; /*Grey*/
+  transition: background-color .2s ease-out;
+}
+
+/*When mouse moves over sidepanel, js sets contenteditable true
+  and the textbox changes background color*/
+#content[contenteditable=true] {
+  background-color: white;  /*White while in focus or mouseover*/
+  transition: background-color .2s ease-in;
+}
+
+/*Prevent the default dashed outline whenever textbox is in focus*/
+[contenteditable]:focus {
+  outline: 0px solid transparent;
+}
