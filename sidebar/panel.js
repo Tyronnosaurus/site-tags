@@ -44,20 +44,11 @@ function onError(error){
 //   LOADING   //
 /////////////////
 
-//Fetch textbox's content. Run when changing/reloading a tab. Steps:
-//  1) Get the active tab in this sidebar's window.
-//  2) Get its stored content.
-//  3) Put it in the content box.
-function updateContent() {
-  browser.tabs.query({windowId: myWindowId, active: true})  //Gets all tabs that have the specified properties (just the active tab in current window)
-    .then((tabs) => {
-      return browser.storage.local.get(tabs[0].url);
-    })
-    .then((storedInfo) => {
-      contentBox.textContent = storedInfo[Object.keys(storedInfo)[0]];
-    });
-}
-
+//When the sidebar loads, get the ID of its window and update its content.
+browser.windows.getCurrent({populate: true}).then((windowInfo) => {
+  myWindowId = windowInfo.id;
+  updateContent();
+});
 
 //Update content when a new tab becomes active.
 browser.tabs.onActivated.addListener(updateContent);
@@ -67,9 +58,21 @@ browser.tabs.onActivated.addListener(updateContent);
 browser.tabs.onUpdated.addListener(updateContent);
 
 
-//When the sidebar loads, get the ID of its window and update its content.
-browser.windows.getCurrent({populate: true}).then((windowInfo) => {
-  myWindowId = windowInfo.id;
-  updateContent();
-});
 
+//Fetch textbox's content. Run when changing/reloading a tab. Steps:
+//  1) Get the active tab in this sidebar's window.
+//  2) Get its stored content.
+//  3) Put it in the content box.
+function updateContent() {
+  browser.tabs.query({windowId: myWindowId, active: true})  //Asynchronously get active tab
+  .then(getUrlNotes)                                        //When done, asynchronously fetch its notes
+  .then(putNotesInContentBox);                              //When done, asynchronously load them in the textbox
+}
+
+function getUrlNotes(tabs){
+  return( browser.storage.local.get(tabs[0].url) );
+}
+
+function putNotesInContentBox(storedInfo){
+  contentBox.textContent = storedInfo[Object.keys(storedInfo)[0]];
+}
