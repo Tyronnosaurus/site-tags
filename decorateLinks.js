@@ -16,6 +16,8 @@ function addIconIfNecessary(linkNode){
    
     //Start an asynchronous query to retrieve any value under the 'url' key in local storage.
     url = linkNode.href;
+    url = normalizeUrl(url);
+
     fetchQuery = browser.storage.local.get(url);
 
     //fetchQuery is a promise. Using 'then()', we can pass 2 functions (success & fail) that will be executed when the query finishes.
@@ -44,10 +46,10 @@ function onGot(storedMap, linkNode) {
         return;
     } else {
 
-        //Add text/icon after the link
-        var addition = document.createElement("span");
-        addition.innerHTML = " (X)";
-        insertAfter(addition , linkNode);
+        //Add icon after the link
+        var myImage = new Image(25, 20);
+        myImage.src = 'icons/seen_20px.png';
+        insertAfter(myImage , linkNode);
         
     }
 
@@ -65,3 +67,5 @@ function onError(error) {
 function insertAfter(newNode, referenceNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 }
+
+

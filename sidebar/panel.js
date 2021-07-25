@@ -1,3 +1,4 @@
+
 var myWindowId;
 const contentBox = document.querySelector("#content");
 
@@ -32,9 +33,9 @@ function saveContents(tabs){
 
   if (!(!notes || notes.length === 0)) { //Make sure it's not empty. Otherwise we'll save an empty string every time we move the mouse over the textbox
 
-    let contentToStore = {};        //Map (aka Dictionary) where keys are URLs and values are their notes. We just store one pair.
-    let currentUrl = tabs[0].url;
-    contentToStore[currentUrl] = contentBox.textContent;
+    let contentToStore = {};             //Map (aka Dictionary) where keys are URLs and values are their notes. We just store one pair.
+    url = normalizeUrl(urtabs[0].url);
+    contentToStore[url] = contentBox.textContent;
 
     browser.storage.local.set(contentToStore);  //Save the dictionary's pair in local storage
   }
@@ -77,7 +78,9 @@ function updateContent() {
 }
 
 function getUrlNotes(tabs){
-  return( browser.storage.local.get(tabs[0].url) );
+  url = normalizeUrl(tabs[0].url);
+  //console.log(url);
+  return( browser.storage.local.get(url) );
 }
 
 function putNotesInContentBox(storedInfo){

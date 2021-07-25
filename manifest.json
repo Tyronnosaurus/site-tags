@@ -30,7 +30,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["./decorateLinks.js"],
+      "js": ["./aux_scripts/normalizeUrl.js", "./decorateLinks.js"],
       "run_at":"document_end"
     }
   ]
