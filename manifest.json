@@ -17,7 +17,11 @@
     "default_panel": "sidebar/panel.html"
   },
 
-  "permissions": ["storage", "tabs"],
+  "background": {
+    "scripts": ["./context_menu/background.js"]
+  },
+
+  "permissions": ["storage", "tabs", "activeTab", "contextMenus"],
 
   "commands": {
     "_execute_sidebar_action": {
