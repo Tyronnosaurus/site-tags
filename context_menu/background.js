@@ -20,8 +20,8 @@ function ContextMenuAction(info, tab){
     
     if (info.menuItemId === "tag-website") { //Our context menu item has been clicked
 
-        const url = info.linkUrl;
-        //url = normalizeUrl(url);
+        var url = info.linkUrl;
+        url = normalizeUrl(url);
 
         AppendTag(url, "seen");
 

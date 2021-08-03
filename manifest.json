@@ -18,7 +18,7 @@
   },
 
   "background": {
-    "scripts": ["./context_menu/background.js"]
+    "scripts": ["./aux_scripts/normalizeUrl.js", "./context_menu/background.js"]
   },
 
   "permissions": ["storage", "tabs", "activeTab", "contextMenus"],
