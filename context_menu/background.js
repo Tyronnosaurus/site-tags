@@ -2,8 +2,8 @@
 //Create a context menu item for when right-clicking links
 browser.contextMenus.create(
     {
-        id: "tag-untag-link",
-        title: "Tag/untag link",
+        id: "tag-seen",
+        title: "Seen",
         contexts: ["link"],
     }
 );
@@ -23,7 +23,7 @@ browser.contextMenus.onClicked.addListener(ContextMenuAction);
 //If it's this webextension's item, we check the corresponding page's url and execute the command.
 function ContextMenuAction(info, tab){
     
-    if (info.menuItemId === "tag-untag-link") { //Our context menu item has been clicked
+    if (info.menuItemId === "tag-seen") { //Our context menu item has been clicked
 
         var url = info.linkUrl;
         url = normalizeUrl(url);
@@ -88,7 +88,6 @@ function BuildFunction_SaveTagList(url){
         let contentToStore = {};                    //Map (aka Dictionary) where keys are URLs and values are their notes. We just store one pair
         contentToStore[url] = tagList;
         browser.storage.local.set(contentToStore);  //Save the dictionary's pair in local storage
-        console.log(contentToStore);
     }
 
     return(SaveList);   //Return the whole function
