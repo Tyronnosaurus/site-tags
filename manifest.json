@@ -11,12 +11,6 @@
     }
   },
 
-  "sidebar_action": {
-    "default_icon": "icons/star.png",
-    "default_title" : "Annotator",
-    "default_panel": "sidebar/panel.html"
-  },
-
   "background": {
     "scripts": ["./aux_scripts/normalizeUrl.js", "./context_menu/background.js"]
   },
@@ -28,13 +22,6 @@
     "contextMenus",
     "<all_urls>"],
 
-  "commands": {
-    "_execute_sidebar_action": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+Y"
-      }
-    }
-  },
 
   "content_scripts": [
     {
