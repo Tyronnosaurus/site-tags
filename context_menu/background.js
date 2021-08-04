@@ -20,9 +20,9 @@ browser.contextMenus.create(
 //  UPDATE CHECKBOX  //
 ///////////////////////
 
-//Update checkbox's tick when opening context menu.
+//Update checkbox's tick (checked/unchecked) when opening context menu.
 //  Context menu is opened -> Check url of right-clicked item -> Fetch taglist on local storage -> 
-//  Decide wether to show/hide tick -> Actually show/hide tick -> Refresh context menu
+//  -> Decide whether to show/hide tick -> Actually show/hide tick -> Refresh context menu
 
 browser.contextMenus.onShown.addListener(UpdateCheckboxsCheck);
 
@@ -66,12 +66,13 @@ function UpdateCheckboxsCheck(info, tab){
 
 
 
-
+///////////////////////////////
+//  CLICK CONTEXT MENU ITEM  //
+///////////////////////////////
 
 //Define what to do when context menu item is clicked
 //Gets called for any context menu item, but we later check if it's ours specifically
 browser.contextMenus.onClicked.addListener(ContextMenuAction);
-
 
 
 //Executed when (any) context menu item is clicked.
@@ -80,10 +81,14 @@ function ContextMenuAction(info, tab){
     
     if (info.menuItemId === "tag-seen") { //Our context menu item has been clicked
 
-        const url = normalizeUrl(info.linkUrl);
+        //Get url of right-clicked item.
+        if (info.linkUrl)      url = info.linkUrl;   //Clicked on a link
+        else if (info.pageUrl) url = info.pageUrl;   //Clicked on current page (its background)
+        else return;                                 //Clicked something else -> We have no url to check, stop here
+
+        url = normalizeUrl(url);
 
         ToggleTagInLocalStorage(url, "seen");
-
     }
 }
 
@@ -108,7 +113,7 @@ function ToggleTagInLocalStorage(url, tag){
 
 
 
-//Returns an AppendTag function where 'tag' is hardcoded.
+//Returns an AppendRemoveTag function where 'tag' is hardcoded.
 //We do this "wrapping" because javascript's promises won't let us use 'tag' as an argument in step 2.
 function BuildFunction_AppendRemoveTag(tag){
 
