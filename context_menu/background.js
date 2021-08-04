@@ -67,7 +67,7 @@ function BuildFunction_AppendRemoveTag(tag){
             if (!tagList.includes(tag))     //Otherwise, get the existing tagList and append the new tag if it isn't there already 
                 tagList.push(tag);
             else  
-                taglist = taglist.filter(item => item !== value);
+                tagList = tagList.filter(item => item !== value);   //If it's there already, remove it
         }
 
         return(tagList);
