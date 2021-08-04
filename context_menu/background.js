@@ -32,6 +32,8 @@ function UpdateCheckboxsCheck(info, tab){
     //Note: to read info, you need permission "<all_urls>" in manifest.json
     if (info.contexts.includes("link"))      url = info.linkUrl;   //Clicked on a link
     else if (info.contexts.includes("page")) url = info.pageUrl;   //Clicked on current page (it's background)
+    else return;                                                   //Clicked something else -> We have no url to check, stop here
+
     url = normalizeUrl(url);
 
 
