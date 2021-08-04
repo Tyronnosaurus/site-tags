@@ -1,19 +1,15 @@
 {
 
   "manifest_version": 2,
-  "name": "Web page annotator",
-  "description": "Displays a sidebar that lets you take notes on web pages.",
+  "name": "Site Tags",
+  "description": "Lets user tag websites. Links pointing to it will have an icon appended.",
   "version": "1.0",
 
-  "browser_specific_settings": {
-    "gecko": {
-      "strict_min_version": "54.0a1"
-    }
-  },
 
   "background": {
     "scripts": ["./aux_scripts/normalizeUrl.js", "./context_menu/background.js"]
   },
+
 
   "permissions": [
     "storage",
