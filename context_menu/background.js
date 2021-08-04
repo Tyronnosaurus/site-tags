@@ -53,7 +53,6 @@ function UpdateCheckboxsCheck(info, tab){
     //Step 3: Show/hide check
     .then(
         (urlHasTag) => {
-            console.log(urlHasTag)
             browser.contextMenus.update( "tag-seen" , {checked:urlHasTag}  )
             browser.contextMenus.refresh();
         }
@@ -79,10 +78,9 @@ function ContextMenuAction(info, tab){
     
     if (info.menuItemId === "tag-seen") { //Our context menu item has been clicked
 
-        var url = info.linkUrl;
-        url = normalizeUrl(url);
+        const url = normalizeUrl(info.linkUrl);
 
-        AppendTag(url, "seen");
+        ToggleTagInLocalStorage(url, "seen");
 
     }
 }
@@ -90,17 +88,17 @@ function ContextMenuAction(info, tab){
 
 
 
-function AppendTag(url, tag){
+function ToggleTagInLocalStorage(url, tag){
 
-    //Step 1: Grab currently saved list of tags for this url
+    //Step 1: Fetch tagList for this url from local storage
     browser.storage.local.get(url)
 
 
-    //Step 2: Append new tag if necessary
+    //Step 2: Append/remove tag in list
     .then( BuildFunction_AppendRemoveTag(tag) , onStorageGetError )
 
 
-    //Step 3: Save updated list
+    //Step 3: Save updated list back to local storage
     .then( BuildFunction_SaveTagList(url) )
  
 }
