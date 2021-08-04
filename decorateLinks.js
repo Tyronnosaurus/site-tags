@@ -40,17 +40,16 @@ function onGot(storedMap, linkNode) {
     //If the specified key didn't exist in local storage, value 'undefined' will be returned
 
     //Get the value in the first pair of the Map
-    value = storedMap[Object.keys(storedMap)[0]];
+    tagList = storedMap[Object.keys(storedMap)[0]];
 
-    if(typeof value == 'undefined'){   //Key had no data saved in local storage
-        return;
-    } else {
+    if (typeof tagList == 'undefined')  return;   //No info for this url found in local storage
 
+    else if (tagList.includes("seen"))
+    {
         //Add icon after the link
         var myImage = new Image(25, 20);
         myImage.src = 'icons/seen_20px.png';
         insertAfter(myImage , linkNode);
-        
     }
 
 }
