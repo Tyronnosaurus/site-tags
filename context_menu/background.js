@@ -1,12 +1,65 @@
+/////////////////////////////////
+//  CREATE CONTEXT MENU ITEM   //
+/////////////////////////////////
 
 //Create a context menu item for when right-clicking links
 browser.contextMenus.create(
     {
         id: "tag-seen",
         title: "Seen",
-        contexts: ["link"],
+        contexts: ["link","page"],
+        type: "checkbox",           //It's a checkbox, which makes it easy to tag/untag with a single context menu entry
+        checked: false              //Regardles of initial state, it will change automatically whenever we open context menu
     }
 );
+
+
+
+
+///////////////////////
+//  UPDATE CHECKBOX  //
+///////////////////////
+
+//Update checkbox's tick when opening context menu.
+//  Context menu is opened -> Check url of right-clicked item -> Fetch taglist on local storage -> 
+//  Decide wether to show/hide tick -> Actually show/hide tick -> Refresh context menu
+
+browser.contextMenus.onShown.addListener(UpdateCheckboxsCheck);
+
+function UpdateCheckboxsCheck(info, tab){
+
+    //Get url of right-clicked item.
+    //Note: to read info, you need permission "<all_urls>" in manifest.json
+    if (info.contexts.includes("link"))      url = info.linkUrl;   //Clicked on a link
+    else if (info.contexts.includes("page")) url = info.pageUrl;   //Clicked on current page (it's background)
+    url = normalizeUrl(url);
+
+
+    //Step 1: Retrieve url's tagList from local storage
+    browser.storage.local.get(url)
+
+    //Step 2: Decide whether checkbox's check should be shown or hidden
+    .then( 
+        (storedInfo) => {
+            tagList = storedInfo[Object.keys(storedInfo)[0]];   //local.get() returns a map (with just 1 key:value pair), from which we extract the value of the first pair
+            
+            if (typeof tagList == 'undefined') return(false);   //No info for this url found in local storage
+            else if (!tagList.includes("seen"))   return(false);   //Url doesn't have this tag
+            else                               return(true);    //Url does have this tag
+        }   
+    , onStorageGetError )
+
+    //Step 3: Show/hide check
+    .then(
+        (urlHasTag) => {
+            console.log(urlHasTag)
+            browser.contextMenus.update( "tag-seen" , {checked:urlHasTag}  )
+            browser.contextMenus.refresh();
+        }
+    )
+
+}
+
 
 
 
@@ -67,7 +120,7 @@ function BuildFunction_AppendRemoveTag(tag){
             if (!tagList.includes(tag))     //Otherwise, get the existing tagList and append the new tag if it isn't there already 
                 tagList.push(tag);
             else  
-                tagList = tagList.filter(item => item !== value);   //If it's there already, remove it
+                tagList = tagList.filter(item => item !== tag);   //If it's there already, remove it
         }
 
         return(tagList);

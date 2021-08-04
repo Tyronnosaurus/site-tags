@@ -21,7 +21,12 @@
     "scripts": ["./aux_scripts/normalizeUrl.js", "./context_menu/background.js"]
   },
 
-  "permissions": ["storage", "tabs", "activeTab", "contextMenus"],
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "contextMenus",
+    "<all_urls>"],
 
   "commands": {
     "_execute_sidebar_action": {
