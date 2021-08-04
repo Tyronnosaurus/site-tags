@@ -73,7 +73,7 @@ function BuildFunction_AppendRemoveTag(tag){
         return(tagList);
     }
 
-    return(AppendTag);  //Return the whole function
+    return(AppendRemoveTag);  //Return the whole function
 }
 
 
