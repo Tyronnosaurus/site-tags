@@ -25,6 +25,10 @@
       "js": ["./aux_scripts/normalizeUrl.js", "./decorateLinks.js"],
       "run_at":"document_end"
     }
+  ],
+
+  "web_accessible_resources": [
+    "/icons/*.png"
   ]
 
 }

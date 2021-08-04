@@ -46,9 +46,17 @@ function onGot(storedMap, linkNode) {
 
     else if (tagList.includes("seen"))
     {
-        //Add icon after the link
+        ////Add icon after the link
+
+        //Create <img> node
         var myImage = new Image(25, 20);
-        myImage.src = 'icons/seen_20px.png';
+
+        //Get icon's url
+        //Returns something like:  moz-extension://2c127fa4-62c7-7e4f-90e5-472b45eecfdc/icons/file.ext
+        //The long number is a randomly generated ID for every browser instance. This prevents fingerprinting
+        myImage.src = browser.runtime.getURL("icons/seen_20px.png");
+
+        //In the html, insert the image after the link (not inside) 
         insertAfter(myImage , linkNode);
     }
 
