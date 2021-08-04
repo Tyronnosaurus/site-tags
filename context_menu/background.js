@@ -43,9 +43,10 @@ function UpdateCheckboxsCheck(info, tab){
         (storedInfo) => {
             tagList = storedInfo[Object.keys(storedInfo)[0]];   //local.get() returns a map (with just 1 key:value pair), from which we extract the value of the first pair
             
-            if (typeof tagList == 'undefined') return(false);   //No info for this url found in local storage
-            else if (!tagList.includes("seen"))   return(false);   //Url doesn't have this tag
-            else                               return(true);    //Url does have this tag
+            if (typeof tagList == 'undefined')  return(false);   //No info for this url found in local storage
+            else if (!tagList.includes("seen")) return(false);   //Url doesn't have this tag
+            else if (tagList.includes("seen"))  return(true);    //Url does have this tag
+            else                                return(false);   //Just in case. Shouldn't reach this.
         }   
     , onStorageGetError )
 
