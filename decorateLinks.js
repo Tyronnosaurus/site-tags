@@ -1,18 +1,19 @@
 
-//Get array of all links in the page
-var linkNodes = document.links;
+decorateAllLinksInPage();   //Since this script gets loaded as a content script, this function gets executed whenever a website is loaded
 
 
-for(var i=0; i<linkNodes.length; i++) {
 
-    addIconIfNecessary(linkNodes[i]);
+function decorateAllLinksInPage(){
+    
+    var linkNodes = document.links; //Get list of all links in the page
 
+    for(var i=0; i<linkNodes.length; i++)
+        decorateLink(linkNodes[i]);
 }
 
 
 
-
-function addIconIfNecessary(linkNode){
+function decorateLink(linkNode){
    
     //Start an asynchronous query to retrieve any value under the 'url' key in local storage.
     url = linkNode.href;
