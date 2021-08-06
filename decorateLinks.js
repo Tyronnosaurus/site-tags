@@ -68,6 +68,9 @@ function decorateLinkNode(linkNode){
     //Create <img> node
     var myImage = new Image(25, 20);
     myImage.src = getResourcesRuntimeUrl("icons/seen_20px.png");
+    myImage.classList.add("st-decoration"); //Marks element as "decoration". Useful to find it later when updating decorations
+    myImage.classList.add("st-icon");       //Type of decoration
+    myImage.classList.add("st-seen");       //Associated tag
 
     //In the html, insert the image after the link (not inside) 
     insertAfter(linkNode, myImage);
