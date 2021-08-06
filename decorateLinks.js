@@ -93,3 +93,20 @@ function getResourcesRuntimeUrl(relativePath){
 function insertAfter(existingNode, newNode) {
     existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
 }
+
+
+
+
+///////////////////////////////
+//  REDECORATE ON TAG CHANGE //
+///////////////////////////////
+
+//When a tag is toggled, the link decoration only changes when reloading the page.
+//However, with this code it also redecorates when user toggles a tag using the context menu.
+
+browser.runtime.onMessage.addListener(
+    (message) => {
+        if (message == "cmd: update icons")
+            decorateAllLinksInPage();
+    }
+);

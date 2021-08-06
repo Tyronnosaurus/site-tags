@@ -78,7 +78,7 @@ browser.contextMenus.onClicked.addListener(ContextMenuAction);
 //Executed when (any) context menu item is clicked.
 //If it's this webextension's item, we check the corresponding page's url and execute the command.
 function ContextMenuAction(info, tab){
-    
+
     if (info.menuItemId === "tag-seen") { //Our context menu item has been clicked
 
         //Get url of right-clicked item.
@@ -88,14 +88,14 @@ function ContextMenuAction(info, tab){
 
         url = normalizeUrl(url);
 
-        ToggleTagInLocalStorage(url, "seen");
+        ToggleTagInLocalStorage(url, "seen", tab);
     }
 }
 
 
 
 
-function ToggleTagInLocalStorage(url, tag){
+function ToggleTagInLocalStorage(url, tag, tab){
 
     //Step 1: Fetch tagList for this url from local storage
     browser.storage.local.get(url)
@@ -107,6 +107,12 @@ function ToggleTagInLocalStorage(url, tag){
 
     //Step 3: Save updated list back to local storage
     .then( BuildFunction_SaveTagList(url) )
+
+
+    //Step 4: Send command to tab to run code to redecorate links
+    .then(
+        () => { browser.tabs.sendMessage(tab.id , "cmd: update icons"); }
+    );
  
 }
 
