@@ -25,9 +25,13 @@ function decorateLinkIfNecessary(linkNode){
     //Start an asynchronous query to retrieve any value under the 'url' key in local storage.
     browser.storage.local.get(url)
 
-    //The function above is a promise. Using 'then()', we can pass 2 functions (success & fail) that will be executed when it finishes.
-    //When the success function is executed, it will get passed as a parameter whatever was returned by browser.storage.local.get(url).
-    .then(BuildFunction_DecideIfDecorationNeeded(linkNode) , onFetchError);
+    //The function above is an asynchronous promise. Using 'then()', we can pass 2 functions (success & fail) that will be executed when it finishes.
+    //The 'success' function is given, as a parameter, whatever is returned by browser.storage.local.get(url).
+    //Since we also need to pass 'linkNode' to it, we create an arrow function that just takes 'storedMap' and wrap a function that takes both params.
+    .then( 
+        (storedMap) => { DecideIfDecorationNeeded(storedMap, linkNode) } ,
+        onFetchError
+    );
 
 }
 
@@ -39,27 +43,17 @@ function decorateLinkIfNecessary(linkNode){
 // DECIDE TO APPEND/REMOVE DECORATION //
 ////////////////////////////////////////
 
+//Run after successfully fetching url's tags from local storage.
+function DecideIfDecorationNeeded(storedMap, linkNode){
 
-//Due to the way javascript's promises work, the function inside then() only gets passed whatever is returned by the local.get() (storedMap).
-//In order to pass extra parameters, we do this wrapping: a function that accepts any parameters and hardcodes them into another function that we return.
-function BuildFunction_DecideIfDecorationNeeded(linkNode){
+    //browser.storage.local.get() -> Returns a Map with key:value pairs (just one pair, actually) ->  Get the value in the first pair
+    tagList = storedMap[Object.keys(storedMap)[0]];
 
-    function DecideIfDecorationNeeded(storedMap){
-        //Succeded fetching local storage --> Returns a Map with key:value pairs.
-        //Since we provided only one key, we get a Map with one pair.
-        //If the specified key didn't exist in local storage, value 'undefined' will be returned
-
-        //Get the value in the first pair of the Map
-        tagList = storedMap[Object.keys(storedMap)[0]];
-
-        if (typeof tagList == 'undefined')  return;     //No info for this url found in local storage
-        else if (tagList.includes("seen"))              //Url had tag --> Append icon to link
-            decorateLinkNode(linkNode);
-    }
-
-    return(DecideIfDecorationNeeded);   //Return the whole function
-
+    if (typeof tagList == 'undefined')  return;     //No info for this url found in local storage
+    else if (tagList.includes("seen"))              //Url had tag --> Append icon to link
+        decorateLinkNode(linkNode);
 }
+
 
 
 //Run when failed to retrieve value from local storage 
