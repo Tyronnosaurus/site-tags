@@ -2,6 +2,10 @@
 decorateAllLinksInPage();   //Since this script gets loaded as a content script, this function gets executed whenever a website is loaded
 
 
+///////////////////
+//  ENTRY POINT  //
+///////////////////
+
 //Fetches all links in the page and decorates those that have a tag
 function decorateAllLinksInPage(){
     
@@ -28,6 +32,12 @@ function decorateLinkIfNecessary(linkNode){
 }
 
 
+
+
+
+////////////////////////////////////////
+// DECIDE TO APPEND/REMOVE DECORATION //
+////////////////////////////////////////
 
 
 //Due to the way javascript's promises work, the function inside then() only gets passed whatever is returned by the local.get() (storedMap).
@@ -61,7 +71,11 @@ function onFetchError(error) {
 
 
 
+/////////////////////////
+//  ACTUAL DECORATION  //
+/////////////////////////
 
+//At this point we have retrieved the tagList from local memory
 
 //Decorate a link (append icon)
 function decorateLinkNode(linkNode){
@@ -92,7 +106,7 @@ function getResourcesRuntimeUrl(relativePath){
 
 
 
-//Inserts a new html node after another existing node
+//Inserts a new html node after another existing node (as a sibling, not a child)
 function insertAfter(existingNode, newNode) {
     existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
 }
