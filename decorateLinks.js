@@ -86,8 +86,8 @@ function decorateLinkNode(linkNode){
     myImage.classList.add("st-icon");       //Type of decoration
     myImage.classList.add("st-seen");       //Associated tag
 
-    //In the html, insert the image after the link (not inside) 
-    insertAfter(linkNode, myImage);
+    //In the HTML, insert icon inside the link node
+    linkNode.appendChild(myImage);
 }
 
 
