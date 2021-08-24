@@ -87,8 +87,6 @@ function tagListIsEmpty(tagList){
 //  ACTUAL DECORATION  //
 /////////////////////////
 
-//At this point we have retrieved the tagList from local memory
-
 //Decorate a link (append icon)
 function decorateLinkNode(linkNode){
     //Create <img> node
@@ -116,12 +114,6 @@ function getResourcesRuntimeUrl(relativePath){
     return( browser.runtime.getURL(relativePath) );
 }
 
-
-
-//Inserts a new html node after another existing node (as a sibling, not a child)
-function insertAfter(existingNode, newNode) {
-    existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
-}
 
 
 
