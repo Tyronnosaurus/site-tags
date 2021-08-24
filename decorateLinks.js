@@ -12,13 +12,13 @@ function decorateAllLinksInPage(){
     var linkNodes = document.links; //Get list of all links in the page
 
     for(var i=0; i<linkNodes.length; i++)
-        decorateLinkIfNecessary(linkNodes[i]);
+        getTagsAndProcessLink(linkNodes[i]);
 }
 
 
 
 //Given a single html link node, fetches associated tag(s) and proceeds to decorate it
-function decorateLinkIfNecessary(linkNode){
+function getTagsAndProcessLink(linkNode){
    
     const url = normalizeUrl(linkNode.href);
 
