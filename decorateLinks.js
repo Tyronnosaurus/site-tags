@@ -33,6 +33,11 @@ function decorateLinkIfNecessary(linkNode){
             //Parse return value of browser.storage.local.get()
             // It returns a Map of key:value pairs (url:tagList) -> We queried for 1 key, so the Map just has 1 pair -> Get the value in the first pair (a list of 0 or more tags).
             tagList = storedMap[Object.keys(storedMap)[0]];
+
+            //If we had never tagged this url, it will find nothing in local storage -> Returns {key:'undefined'} ->
+            // -> We convert it to an empty list, which is easier to work with
+            if (tagList == 'undefined') tagList = [];
+
             DecideIfDecorationNeeded(tagList, linkNode)
         },
         onFetchError
