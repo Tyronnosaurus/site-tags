@@ -60,24 +60,26 @@ function onFetchError(error) {
 // DECIDE TO APPEND/REMOVE DECORATION //
 ////////////////////////////////////////
 
+//Now that we know the URL's tag(s), decide whether to add or remove decoration
 function DecideIfDecorationNeeded(tagList, linkNode){
 
-    //browser.storage.local.get() -> Returns a Map with key:value pairs (just one pair, actually) ->  Get the value in the first pair
-    tagList = storedMap[Object.keys(storedMap)[0]];
+    if (tagListIsEmpty(tagList)) return;
 
-    if (typeof tagList == 'undefined')  return;     //No info for this url found in local storage
-    else if (tagList.includes("seen"))              //Url had tag --> Append icon to link
+    else if (tagList.includes("seen"))              //Url had tag --> Decorate link
         decorateLinkNode(linkNode);
+
 }
 
 
 
-//Run when failed to retrieve value from local storage 
-function onFetchError(error) {
-    //Note that not finding a value for a specified key is not an error. It just returns 'undefined'
-    console.log(`Error: ${error}`);
-}
 
+//Returns true if a tagList is empty (because it was never created or it has been emptied)
+function tagListIsEmpty(tagList){
+    if (typeof tagList == 'undefined') return(true);     //No info for this url found in local storage -> Returns 'undefined' tagList.
+                                                         // (should never happen since getTagsAndProcessLink() already deals with it).
+    else if (tagList.length === 0)     return(true);     //Taglist exists but it's empty
+    return(false);                                       //Taglist exists and it's not empty
+}
 
 
 
