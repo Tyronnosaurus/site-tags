@@ -6,7 +6,7 @@ decorateAllLinksInPage();   //Since this script gets loaded as a content script,
 //  ENTRY POINT  //
 ///////////////////
 
-//Fetches all links in the page and decorates those that have a tag
+//Fetches all links in the page and processes them
 function decorateAllLinksInPage(){
     
     var linkNodes = document.links; //Get list of all links in the page
@@ -17,7 +17,7 @@ function decorateAllLinksInPage(){
 
 
 
-//Given a single html link node, decorates it if it has a tag
+//Given a single html link node, fetches associated tag(s) and proceeds to decorate it
 function decorateLinkIfNecessary(linkNode){
    
     const url = normalizeUrl(linkNode.href);
@@ -29,10 +29,22 @@ function decorateLinkIfNecessary(linkNode){
     //The 'success' function is given, as a parameter, whatever is returned by browser.storage.local.get(url).
     //Since we also need to pass 'linkNode' to it, we create an arrow function that just takes 'storedMap' and wrap a function that takes both params.
     .then( 
-        (storedMap) => { DecideIfDecorationNeeded(storedMap, linkNode) } ,
+        (storedMap) => { 
+            //Parse return value of browser.storage.local.get()
+            // It returns a Map of key:value pairs (url:tagList) -> We queried for 1 key, so the Map just has 1 pair -> Get the value in the first pair (a list of 0 or more tags).
+            tagList = storedMap[Object.keys(storedMap)[0]];
+            DecideIfDecorationNeeded(tagList, linkNode)
+        },
         onFetchError
     );
 
+}
+
+
+//Run when failed to retrieve value from local storage 
+function onFetchError(error) {
+    //Note: not finding data for a specific key is not an error. It just returns 'undefined'
+    console.log(`Error: ${error}`);
 }
 
 
@@ -43,8 +55,7 @@ function decorateLinkIfNecessary(linkNode){
 // DECIDE TO APPEND/REMOVE DECORATION //
 ////////////////////////////////////////
 
-//Run after successfully fetching url's tags from local storage.
-function DecideIfDecorationNeeded(storedMap, linkNode){
+function DecideIfDecorationNeeded(tagList, linkNode){
 
     //browser.storage.local.get() -> Returns a Map with key:value pairs (just one pair, actually) ->  Get the value in the first pair
     tagList = storedMap[Object.keys(storedMap)[0]];
