@@ -36,7 +36,7 @@ function getTagsAndProcessLink(linkNode){
 
             //If we had never tagged this url, it will find nothing in local storage -> Returns {key:'undefined'} ->
             // -> We convert it to an empty list, which is easier to work with
-            if (tagList == 'undefined') tagList = [];
+            if (tagList === undefined) tagList = [];
 
             DecideIfDecorationNeeded(tagList, linkNode)
         },
