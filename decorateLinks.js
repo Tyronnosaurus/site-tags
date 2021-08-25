@@ -155,6 +155,25 @@ function removeDecorationSingleTag(linkNode, tag){
 }
 
 
+//Looks up which tags have already been applied to the link (as in, which icons it has already)
+//Returns list of tags, i.e. [seen, have, want]
+function getCurrentlyAppliedTags(linkNode){
+    appliedTagList = [];
+    el_list = linkNode.getElementsByClassName("st-decoration");
+    //if (el_list.length == 0) return([]);    //None found -> return empty list
+
+    for(i=0; i<el_list.length; i++){
+        tagClass = el_list[i].classList[1];  //Get class that defines corresponding tag (i.e. st-seen)
+        tagName = tagClass.substring(3);     //Get everything after "st-"
+        appliedTagList.push(tagName);
+    }
+
+    return(appliedTagList);
+}
+
+
+
+
 ///////////////////////////////
 //  REDECORATE ON TAG CHANGE //
 ///////////////////////////////
