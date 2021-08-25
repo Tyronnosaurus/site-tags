@@ -66,7 +66,7 @@ function DecideIfDecorationNeeded(tagList, linkNode){
     if (tagListIsEmpty(tagList)) return;
 
     else if (tagList.includes("seen"))              //Url had tag --> Decorate link
-        decorateLinkNode(linkNode);
+        decorateLinkNode(linkNode, tagList);
 
 }
 
@@ -88,12 +88,17 @@ function tagListIsEmpty(tagList){
 /////////////////////////
 
 //Decorate a link (append icon)
-function decorateLinkNode(linkNode){
+function decorateLinkNode(linkNode, tagList){
+    appendIcon(linkNode);
+}
+
+
+
+function appendIcon(linkNode){
     //Create <img> node
     var myImage = new Image(25, 20);
     myImage.src = getResourcesRuntimeUrl("icons/seen_20px.png");
     myImage.classList.add("st-decoration"); //Marks element as "decoration". Useful to find it later when updating decorations
-    myImage.classList.add("st-icon");       //Type of decoration
     myImage.classList.add("st-seen");       //Associated tag
 
     //In the HTML, insert icon inside the link node
