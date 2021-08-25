@@ -117,6 +117,32 @@ function getResourcesRuntimeUrl(relativePath){
 
 
 
+//A decorated link has one or more icons appended at the end. They have this format:
+//    <img class="st-decoration st-{tagName}" src="path/to/image">
+
+//To check if a link has any decoration, we can just check if the last child has the st-decoration class.
+function isAlreadyDecorated(linkNode){
+    if(linkNode.lastChild == null) return(false);                   //Make sure there's actually a last child (could be empty)
+    if(linkNode.lastChild.classList === undefined) return(false);   //Make sure it has a classList
+    return(linkNode.lastChild.classList.contains("st-decoration")); //Check if it has the st-decoration class
+}
+
+
+//To check if a link has a specific tag decoration, we check every child looking for the class st-{tagName}
+function isAlreadyDecoratedWithTag(linkNode, tag){
+    children = linkNode.children;
+    classToLookFor = "st-" + tag;
+
+    for (var i=children.length-1; i>=0; i--) {  //Loop through children nodes (backwards, since the decoration is likely one of the last)
+        if(linkNode.lastChild.classList === undefined) return(false);   //Make sure node has a classList
+        if (children[i].classList.contains(classToLookFor)) return(true);
+    }
+
+    return(false);  //Class wasn't found -> Link does not have specified decoration
+}
+
+
+
 
 ///////////////////////////////
 //  REDECORATE ON TAG CHANGE //
