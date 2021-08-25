@@ -147,6 +147,12 @@ function isAlreadyDecoratedWithTag(linkNode, tag){
 }
 
 
+//Given a link element, removes icon for a specific tag
+function removeDecorationSingleTag(linkNode, tag){
+    el_list = linkNode.getElementsByClassName("st-"+tag)    //Get all children with st-tagname class
+    if (el_list.length == 0)   return;                      //Return if list is empty
+    el_list[0].remove();                                    //Remove first element from page (in a given link, there should only be one icon per tag)
+}
 
 
 ///////////////////////////////
