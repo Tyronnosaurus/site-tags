@@ -38,7 +38,7 @@ function getTagsAndProcessLink(linkNode){
             // -> We convert it to an empty list, which is easier to work with
             if (tagList === undefined) tagList = [];
 
-            DecideIfDecorationNeeded(tagList, linkNode)
+            AddOrRemoveDecorationsToLink(linkNode, tagList)
         },
         onFetchError
     );
@@ -61,25 +61,31 @@ function onFetchError(error) {
 ////////////////////////////////////////
 
 //Now that we know the URL's tag(s), decide whether to add or remove decoration
-function DecideIfDecorationNeeded(tagList, linkNode){
+function AddOrRemoveDecorationsToLink(linkNode, tagList){
 
-    if (tagListIsEmpty(tagList)) return;
+    appliedTags = getCurrentlyAppliedTags(linkNode);
 
-    else if (tagList.includes("seen"))              //Url had tag --> Decorate link
-        decorateLinkNode(linkNode, tagList);
+    //We've now got two lists:
+    //  tagList: tags that are associated to the URL, so the corresponding icon needs to be appended
+    //  appliedTags: tags that are appended to the link in the live page
+
+    //If a tag is in tagList but not in appliedTags, apply the decoration. This ensures no decoration is applied twice.
+    for (i=0; i<tagList.length; i++){
+        if ( !appliedTags.includes(tagList[i]) )
+            addDecorationForSingleTag(linkNode, tagList[i]);
+    }
+
+    //If a tag is in appliedTags but not in tagList, we have to delete it from the page. The user likely just unchecked it.
+    for (i=0; i<appliedTags.length; i++){
+        if ( !tagList.includes(appliedTags[i]) )
+            removeDecorationForSingleTag(linkNode,appliedTags[i]);
+    }
 
 }
 
 
 
 
-//Returns true if a tagList is empty (because it was never created or it has been emptied)
-function tagListIsEmpty(tagList){
-    if (typeof tagList == 'undefined') return(true);     //No info for this url found in local storage -> Returns 'undefined' tagList.
-                                                         // (should never happen since getTagsAndProcessLink() already deals with it).
-    else if (tagList.length === 0)     return(true);     //Taglist exists but it's empty
-    return(false);                                       //Taglist exists and it's not empty
-}
 
 
 
@@ -88,13 +94,13 @@ function tagListIsEmpty(tagList){
 /////////////////////////
 
 //Decorate a link (append icon)
-function decorateLinkNode(linkNode, tagList){
-    appendIcon(linkNode);
+function addDecorationForSingleTag(linkNode, tag){
+    appendIcon(linkNode, tag);
 }
 
 
 
-function appendIcon(linkNode){
+function appendIcon(linkNode, tag){
     //Create <img> node
     var myImage = new Image(25, 20);
     myImage.src = getResourcesRuntimeUrl("icons/seen_20px.png");
@@ -148,7 +154,7 @@ function isAlreadyDecoratedWithTag(linkNode, tag){
 
 
 //Given a link element, removes icon for a specific tag
-function removeDecorationSingleTag(linkNode, tag){
+function removeDecorationForSingleTag(linkNode, tag){
     el_list = linkNode.getElementsByClassName("st-"+tag)    //Get all children with st-tagname class
     if (el_list.length == 0)   return;                      //Return if list is empty
     el_list[0].remove();                                    //Remove first element from page (in a given link, there should only be one icon per tag)
