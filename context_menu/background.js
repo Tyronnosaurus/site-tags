@@ -119,16 +119,23 @@ browser.contextMenus.onClicked.addListener(ContextMenuAction);
 //If it's this webextension's item, we check the corresponding page's url and execute the command.
 function ContextMenuAction(info, tab){
 
-    if (info.menuItemId === "id-seen") { //Our context menu item has been clicked
+    //We loop through all existing tags. For each one, check if this link has it or not, and show/hide the tick accordingly
+    for (i=0; i<existingTags.length; i++){
+        
+        ctxtmenuID = ("id-" + existingTags[i]); //e.g. "id-seen" is the id of the context menu that toggles tag "seen"
+        
+        if (info.menuItemId === ctxtmenuID) {   //Was this the clicked context menu item?
 
-        //Get url of right-clicked item.
-        if (info.linkUrl)      url = info.linkUrl;   //Clicked on a link
-        else if (info.pageUrl) url = info.pageUrl;   //Clicked on current page (its background)
-        else return;                                 //Clicked something else -> We have no url to check, stop here
+            //Get url of right-clicked item
+            if (info.linkUrl)      url = info.linkUrl;   //Context menu opened on a link
+            else if (info.pageUrl) url = info.pageUrl;   //Context menu opened on current page (anywhere on its background)
+            else return;                                 //Clicked something else -> We have no url to check, stop here. Just in case, shouldn't happen.
 
-        url = normalizeUrl(url);
-        ToggleTagInLocalStorage(url, "seen", tab);
+            url = normalizeUrl(url);
+            ToggleTagInLocalStorage(url, existingTags[i], tab);
+        }
     }
+
 }
 
 
