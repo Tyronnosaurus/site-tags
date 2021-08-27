@@ -36,7 +36,7 @@ function getTagsAndProcessLink(linkNode){
 
             //If we had never tagged this url, it will find nothing in local storage -> Returns {key:'undefined'} ->
             // -> We convert it to an empty list, which is easier to work with
-            if (tagList === undefined) tagList = [];
+            if (tagList == undefined) tagList = [];
 
             AddOrRemoveDecorationsToLink(linkNode, tagList)
         },
@@ -70,16 +70,14 @@ function AddOrRemoveDecorationsToLink(linkNode, tagList){
     //  appliedTags: tags that are appended to the link in the live page
 
     //If a tag is in tagList but not in appliedTags, apply the decoration. This ensures no decoration is applied twice.
-    for (i=0; i<tagList.length; i++){
+    for (i=0; i<tagList.length; i++)
         if ( !appliedTags.includes(tagList[i]) )
             addDecorationForSingleTag(linkNode, tagList[i]);
-    }
 
     //If a tag is in appliedTags but not in tagList, we have to delete it from the page. The user likely just unchecked it.
-    for (i=0; i<appliedTags.length; i++){
+    for (i=0; i<appliedTags.length; i++)
         if ( !tagList.includes(appliedTags[i]) )
             removeDecorationForSingleTag(linkNode,appliedTags[i]);
-    }
 
 }
 

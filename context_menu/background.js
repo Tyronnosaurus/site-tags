@@ -13,6 +13,18 @@ browser.contextMenus.create(
     }
 );
 
+browser.contextMenus.create(
+    {
+        id: "tag-reached",
+        title: "Reached",
+        contexts: ["link","page"],
+        type: "checkbox",           //It's a checkbox, which makes it easy to tag/untag with a single context menu entry
+        checked: false              //Regardles of initial state, it will change automatically whenever we open context menu
+    }
+);
+
+
+availableTags = ["seen" , "reached"];
 
 
 
@@ -31,7 +43,7 @@ function UpdateCheckboxsCheck(info, tab){
     //Get url of right-clicked item.
     //Note: to read info, you need permission "<all_urls>" in manifest.json
     if (info.contexts.includes("link"))      url = info.linkUrl;   //Clicked on a link
-    else if (info.contexts.includes("page")) url = info.pageUrl;   //Clicked on current page (it's background)
+    else if (info.contexts.includes("page")) url = info.pageUrl;   //Clicked on current page (anywhere on its background)
     else return;                                                   //Clicked something else -> We have no url to check, stop here
 
     url = normalizeUrl(url);
@@ -42,24 +54,22 @@ function UpdateCheckboxsCheck(info, tab){
 
     //Step 2: Decide whether checkbox's check should be shown or hidden
     .then( 
-        (storedInfo) => {
-            tagList = storedInfo[Object.keys(storedInfo)[0]];   //local.get() returns a map (with just 1 key:value pair), from which we extract the value of the first pair
-            
-            if (typeof tagList == 'undefined')  return(false);   //No info for this url found in local storage
-            else if (!tagList.includes("seen")) return(false);   //Url doesn't have this tag
-            else if (tagList.includes("seen"))  return(true);    //Url does have this tag
-            else                                return(false);   //Just in case. Shouldn't reach this.
-        }   
-    , onStorageGetError )
-
-    //Step 3: Show/hide check
-    .then(
-        (urlHasTag) => {
-            browser.contextMenus.update( "tag-seen" , {checked:urlHasTag}  )
-            browser.contextMenus.refresh();
-        }
+        (storedInfo) => { showOrHideTick(storedInfo); } , 
+        onStorageGetError
     )
+}
 
+
+function showOrHideTick(storedInfo){
+    tagList = storedInfo[Object.keys(storedInfo)[0]];   //local.get() returns a map (with just 1 key:value pair), from which we extract the value of the first pair
+    
+    if (tagList === undefined)  //No info for this url found in local storage
+        urlHasTag = false;   
+    else
+        urlHasTag = (tagList.includes("seen"));
+
+    browser.contextMenus.update( "tag-seen" , {checked:urlHasTag}  )
+    browser.contextMenus.refresh();
 }
 
 
@@ -87,26 +97,36 @@ function ContextMenuAction(info, tab){
         else return;                                 //Clicked something else -> We have no url to check, stop here
 
         url = normalizeUrl(url);
-
         ToggleTagInLocalStorage(url, "seen", tab);
     }
 }
 
 
 
-
+//Given an URL and a tag, adds the tag to said URL in local storage (or removes it if tag was already applied).
+//Accessing local storage is an asynchronous operation, so we need to do a sequence of .then().
 function ToggleTagInLocalStorage(url, tag, tab){
 
     //Step 1: Fetch tagList for this url from local storage
     browser.storage.local.get(url)
 
+    .then(
+        (storedInfo) => { return( GetTagListFromFetchedMap(storedInfo) ); } , //Postprocess fetched data to extract the info we want only (the tagList)
+        onStorageGetError   //get().then() 
+    )
+
 
     //Step 2: Append/remove tag in list
-    .then( BuildFunction_AppendRemoveTag(tag) , onStorageGetError )
+    //Note: We need to return() whatever is returned by the wrapped function ToggleTagInTagList(). This way it is passed to step 3 as an input argument.
+    .then(
+        (tagList) => { return( ToggleTagInTagList(tagList, tag) ); }        
+    )
 
 
     //Step 3: Save updated list back to local storage
-    .then( BuildFunction_SaveTagList(url) )
+    .then(
+        (newTagList) => { SaveTagList(url, newTagList); }
+    )
 
 
     //Step 4: Send command to tab to run code to redecorate links
@@ -119,43 +139,35 @@ function ToggleTagInLocalStorage(url, tag, tab){
 
 
 
-//Returns an AppendRemoveTag function where 'tag' is hardcoded.
-//We do this "wrapping" because javascript's promises won't let us use 'tag' as an argument in step 2.
-function BuildFunction_AppendRemoveTag(tag){
+//When we fetch data from local storage, we get a Map of key:value pairs. We just gave 1 key (the URL), so we get 1 pair.
+//We only need the value (the URL's tagList), not the entire Map. This function extracts the value.
+function GetTagListFromFetchedMap(storedInfo){
+    tagList = storedInfo[Object.keys(storedInfo)[0]];   //local.get() returns a map (with just 1 key:value pair), from which we extract the value of the first pair
 
-    function AppendRemoveTag(storedInfo){
-        tagList = storedInfo[Object.keys(storedInfo)[0]];   //local.get() returns a map (with just 1 key:value pair), from which we extract the value of the first pair
-
-        if(typeof tagList == 'undefined'){  //This url had no data in local storage -> The returned value is "undefined"
-            tagList = [tag];                //We create a new list with just the tag we want to save
-        } else {                             
-            if (!tagList.includes(tag))     //Otherwise, get the existing tagList and append the new tag if it isn't there already 
-                tagList.push(tag);
-            else  
-                tagList = tagList.filter(item => item !== tag);   //If it's there already, remove it
-        }
-
-        return(tagList);
-    }
-
-    return(AppendRemoveTag);  //Return the whole function
+    if(tagList === undefined)   //This url had no data in local storage -> The returned value is undefined
+        tagList = [];           //We create an empty list, which is easier to work with
+    
+    return(tagList);
 }
 
 
 
+//Given a tag and a list of tags, adds the tag if it wasn't in the list, or removes it if did. 
+function ToggleTagInTagList(tagList, tag){
 
-//In the 3rd step, the then() receives a function as a parameter. This function receives the tagList returned by the promis in the 2nd step.
-//We also need to pass url as a parameter, but javascript limitations make it impossible when working with promises.
-//Therefore, we wrap the function in a bigger function that returns a function with the url 'hardcoded'.
-function BuildFunction_SaveTagList(url){
+    if (!tagList.includes(tag))     tagList.push(tag);     //If it's not there, add it
+    else                            tagList.pop(tag);      //If it's there already, remove it
+        
+    return(tagList);
+}
 
-    function SaveList(tagList){
-        let contentToStore = {};                    //Map (aka Dictionary) where keys are URLs and values are their notes. We just store one pair
-        contentToStore[url] = tagList;
-        browser.storage.local.set(contentToStore);  //Save the dictionary's pair in local storage
-    }
 
-    return(SaveList);   //Return the whole function
+
+//Save updated tagList back to local storage
+function SaveTagList(url, tagList){
+    let contentToStore = {};                    //Map (aka Dictionary) where keys are URLs and values are their notes. We just store one pair
+    contentToStore[url] = tagList;
+    browser.storage.local.set(contentToStore);  //Save the dictionary's pair in local storage
 }
 
 
