@@ -5,7 +5,7 @@
 //Create a context menu item for when right-clicking links
 browser.contextMenus.create(
     {
-        id: "tag-seen",
+        id: "id-seen",
         title: "Seen",
         contexts: ["link","page"],
         type: "checkbox",           //It's a checkbox, which makes it easy to tag/untag with a single context menu entry
@@ -15,7 +15,7 @@ browser.contextMenus.create(
 
 browser.contextMenus.create(
     {
-        id: "tag-reached",
+        id: "id-reached",
         title: "Reached",
         contexts: ["link","page"],
         type: "checkbox",           //It's a checkbox, which makes it easy to tag/untag with a single context menu entry
@@ -24,7 +24,10 @@ browser.contextMenus.create(
 );
 
 
-availableTags = ["seen" , "reached"];
+existingTags = ["seen" , "reached"];
+
+
+
 
 
 
@@ -48,28 +51,55 @@ function UpdateCheckboxsCheck(info, tab){
 
     url = normalizeUrl(url);
 
-
     //Step 1: Retrieve url's tagList from local storage
     browser.storage.local.get(url)
 
+    .then(
+        (storedInfo) => { return( GetTagListFromFetchedMap(storedInfo) ); } , //Postprocess fetched data to extract the info we want only (the tagList)
+        onStorageGetError   //get().then() also requires a callback function for when fetching from local storage fails
+    )
+
     //Step 2: Decide whether checkbox's check should be shown or hidden
     .then( 
-        (storedInfo) => { showOrHideTick(storedInfo); } , 
-        onStorageGetError
+        (tagList) => { showOrHideTick(tagList, existingTags); }
     )
+
 }
 
 
-function showOrHideTick(storedInfo){
-    tagList = storedInfo[Object.keys(storedInfo)[0]];   //local.get() returns a map (with just 1 key:value pair), from which we extract the value of the first pair
-    
-    if (tagList === undefined)  //No info for this url found in local storage
-        urlHasTag = false;   
-    else
-        urlHasTag = (tagList.includes("seen"));
 
-    browser.contextMenus.update( "tag-seen" , {checked:urlHasTag}  )
-    browser.contextMenus.refresh();
+//When we fetch data from local storage, we get a Map of key:value pairs. We just gave 1 key (the URL), so we get 1 pair.
+//We only need the value (the URL's tagList), not the entire Map. This function extracts the value.
+function GetTagListFromFetchedMap(storedInfo){
+    tagList = storedInfo[Object.keys(storedInfo)[0]];   //local.get() returns a map (with just 1 key:value pair), from which we extract the value of the first pair
+
+    if(tagList === undefined)   //This url had no data in local storage -> The returned value is undefined
+        tagList = [];           //We create an empty list, which is easier to work with
+    
+    return(tagList);
+}
+
+
+
+function onStorageGetError(error) {
+    //Failed to retrieve value from local storage
+    //Note that not finding a value for a specified key is not an error. It just returns 'undefined'
+    console.log(`Error: ${error}`);
+}
+
+
+
+function showOrHideTick(tagList){
+
+    //We loop through all existing tags. For each one, check if this link has it or not, and show/hide the tick accordingly
+    for (i=0; i<existingTags.length; i++){
+
+        urlHasTag = (tagList.includes(existingTags[i]));
+
+        browser.contextMenus.update( "id-" + existingTags[i] , {checked:urlHasTag}  )
+        browser.contextMenus.refresh();
+
+    }
 }
 
 
@@ -89,7 +119,7 @@ browser.contextMenus.onClicked.addListener(ContextMenuAction);
 //If it's this webextension's item, we check the corresponding page's url and execute the command.
 function ContextMenuAction(info, tab){
 
-    if (info.menuItemId === "tag-seen") { //Our context menu item has been clicked
+    if (info.menuItemId === "id-seen") { //Our context menu item has been clicked
 
         //Get url of right-clicked item.
         if (info.linkUrl)      url = info.linkUrl;   //Clicked on a link
@@ -139,16 +169,7 @@ function ToggleTagInLocalStorage(url, tag, tab){
 
 
 
-//When we fetch data from local storage, we get a Map of key:value pairs. We just gave 1 key (the URL), so we get 1 pair.
-//We only need the value (the URL's tagList), not the entire Map. This function extracts the value.
-function GetTagListFromFetchedMap(storedInfo){
-    tagList = storedInfo[Object.keys(storedInfo)[0]];   //local.get() returns a map (with just 1 key:value pair), from which we extract the value of the first pair
 
-    if(tagList === undefined)   //This url had no data in local storage -> The returned value is undefined
-        tagList = [];           //We create an empty list, which is easier to work with
-    
-    return(tagList);
-}
 
 
 
@@ -173,8 +194,3 @@ function SaveTagList(url, tagList){
 
 
 
-function onStorageGetError(error) {
-    //Failed to retrieve value from local storage
-    //Note that not finding a value for a specified key is not an error. It just returns 'undefined'
-    console.log(`Error: ${error}`);
-}
