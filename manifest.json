@@ -23,12 +23,14 @@
     {
       "matches": ["<all_urls>"],
       "js": ["./aux_scripts/normalizeUrl.js", "./decorateLinks.js"],
-      "run_at":"document_end"
+      "run_at":"document_end",
+      "css": ["./css/icon_style.css"]
     }
   ],
 
   "web_accessible_resources": [
-    "/icons/*.png"
+    "/icons/*.png",
+    "./css/icon_style.css"
   ]
 
 }
