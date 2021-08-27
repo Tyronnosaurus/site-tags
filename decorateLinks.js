@@ -36,7 +36,7 @@ function getTagsAndProcessLink(linkNode){
 
             //If we had never tagged this url, it will find nothing in local storage -> Returns {key:'undefined'} ->
             // -> We convert it to an empty list, which is easier to work with
-            if (tagList == undefined) tagList = [];
+            if (tagList === undefined) tagList = [];
 
             AddOrRemoveDecorationsToLink(linkNode, tagList)
         },
@@ -99,11 +99,13 @@ function addDecorationForSingleTag(linkNode, tag){
 
 
 function appendIcon(linkNode, tag){
-    //Create <img> node
-    var myImage = new Image(25, 20);
-    myImage.src = getResourcesRuntimeUrl("icons/seen_20px.png");
-    myImage.classList.add("st-decoration"); //Marks element as "decoration". Useful to find it later when updating decorations
-    myImage.classList.add("st-seen");       //Associated tag
+    //Create <img> element
+    var myImage = new Image(20, 20);
+    myImage.src = getResourcesRuntimeUrl("icons/"+tag+".png");
+
+    //By adding classes to this HTML element, we can later easily identify which icons have already been applied (to remove them or prevent duplicates)
+    myImage.classList.add("st-decoration"); //Marks element as "decoration"
+    myImage.classList.add("st-"+tag);       //To identify associated tag
 
     //In the HTML, insert icon inside the link node
     linkNode.appendChild(myImage);
