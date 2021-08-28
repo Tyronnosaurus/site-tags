@@ -1,30 +1,26 @@
-/////////////////////////////////
-//  CREATE CONTEXT MENU ITEM   //
-/////////////////////////////////
-
-//Create a context menu item for when right-clicking links
-browser.contextMenus.create(
-    {
-        id: "id-seen",
-        title: "Seen",
-        contexts: ["link","page"],
-        type: "checkbox",           //It's a checkbox, which makes it easy to tag/untag with a single context menu entry
-        checked: false              //Regardles of initial state, it will change automatically whenever we open context menu
-    }
-);
-
-browser.contextMenus.create(
-    {
-        id: "id-reached",
-        title: "Reached",
-        contexts: ["link","page"],
-        type: "checkbox",           //It's a checkbox, which makes it easy to tag/untag with a single context menu entry
-        checked: false              //Regardles of initial state, it will change automatically whenever we open context menu
-    }
-);
-
 
 existingTags = ["seen" , "reached"];
+
+
+//////////////////////////////////
+//  CREATE CONTEXT MENU ITEMS   //
+//////////////////////////////////
+
+//For each existing tag, create a right-click context menu item to toggle it.
+//Note: there can only be one context menu item per extension. If we have more than one tag, they appear in a submenu.
+for (i=0; i<existingTags.length; i++){
+
+    browser.contextMenus.create(
+        {
+            id: "id-" + existingTags[i],
+            title: existingTags[i],
+            contexts: ["link","page"],
+            type: "checkbox",           //It's a checkbox, which makes it easy to tag/untag with a single context menu entry
+            checked: false              //Regardles of initial state, it will change automatically whenever we open context menu
+        }
+    );
+
+}
 
 
 
