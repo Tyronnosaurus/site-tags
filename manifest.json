@@ -7,7 +7,7 @@
 
 
   "background": {
-    "scripts": ["./aux_scripts/normalizeUrl.js", "./background_scripts/context_menu.js"]
+    "scripts": ["./aux_scripts/normalizeUrl.js", "./background_scripts/context_menu.js", "./background_scripts/action_button.js"]
   },
 
 
@@ -31,6 +31,17 @@
   "web_accessible_resources": [
     "/icons/*.png",
     "./css/icon_style.css"
-  ]
+  ],
+
+
+  "options_ui": {
+    "page": "./options_page/options.html",
+    "browser_style": true
+  },
+
+
+  "browser_action": {
+    "default_title": "Site Tags: open options page"
+  }
 
 }
