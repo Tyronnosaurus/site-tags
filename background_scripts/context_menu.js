@@ -145,7 +145,7 @@ function ToggleTagInLocalStorage(url, tag, tab){
 
     .then(
         (storedInfo) => { return( GetTagListFromFetchedMap(storedInfo) ); } , //Postprocess fetched data to extract the info we want only (the tagList)
-        onStorageGetError   //get().then() 
+        onStorageGetError
     )
 
 
@@ -173,15 +173,12 @@ function ToggleTagInLocalStorage(url, tag, tab){
 
 
 
-
-
-
 //Given a tag and a list of tags, adds the tag if it wasn't in the list, or removes it if did. 
 function ToggleTagInTagList(tagList, tag){
 
-    if (!tagList.includes(tag))     tagList.push(tag);     //If it's not there, add it
-    else                            tagList.pop(tag);      //If it's there already, remove it
-        
+    if (!tagList.includes(tag))     tagList.push(tag);                                  //If it's not there, add it
+    else                            tagList = tagList.filter(item => item !== tag);     //If it's there already, remove it
+    
     return(tagList);
 }
 
