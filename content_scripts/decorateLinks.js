@@ -22,35 +22,27 @@ function getTagsAndProcessLink(linkNode){
    
     const url = normalizeUrl(linkNode.href);
 
-    //Start an asynchronous query to retrieve any value under the 'url' key in local storage.
+    //Retrive this URL's tagList from local storage.
+    //This operation is asynchronous (returns a promise). We need to use .then(nextFunction) to register any operation that must be done afterwards.
+    //Note: In '.then()' chains, whatever a function returns is used as the argument for the function in the next 'then()'.
     browser.storage.local.get(url)
 
-    //The function above is an asynchronous promise. Using 'then()', we can pass 2 functions (success & fail) that will be executed when it finishes.
-    //The 'success' function is given, as a parameter, whatever is returned by browser.storage.local.get(url).
+    //Step 1: Retrieve url's tagList from local storage
     //Since we also need to pass 'linkNode' to it, we create an arrow function that just takes 'storedMap' and wrap a function that takes both params.
-    .then( 
-        (storedMap) => { 
-            //Parse return value of browser.storage.local.get()
-            // It returns a Map of key:value pairs (url:tagList) -> We queried for 1 key, so the Map just has 1 pair -> Get the value in the first pair (a list of 0 or more tags).
-            tagList = storedMap[Object.keys(storedMap)[0]];
+    .then(
+        (storedInfo) => { return( GetTagListFromFetchedMap(storedInfo) ); } , //Postprocess fetched data to extract the info we want only (the tagList)
+        onStorageGetError
+    )
 
-            //If we had never tagged this url, it will find nothing in local storage -> Returns {key:'undefined'} ->
-            // -> We convert it to an empty list, which is easier to work with
-            if (tagList === undefined) tagList = [];
-
-            AddOrRemoveDecorationsToLink(linkNode, tagList)
-        },
-        onFetchError
-    );
+    //Step 2: Update shown icons
+    .then(
+        (tagList) => { AddOrRemoveDecorationsToLink(linkNode, tagList); }
+    )
 
 }
 
 
-//Run when failed to retrieve value from local storage 
-function onFetchError(error) {
-    //Note: not finding data for a specific key is not an error. It just returns 'undefined'
-    console.log(`Error: ${error}`);
-}
+
 
 
 

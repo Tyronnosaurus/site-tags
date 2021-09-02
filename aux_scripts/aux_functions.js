@@ -36,12 +36,12 @@ function deleteSubstringAtStart(mainstring, substring){
 // LOCAL STORAGE //
 ///////////////////
 
-//When we fetch data from local storage, we get a Map of key:value pairs. We just gave 1 key (the URL), so we get 1 pair.
+//When we fetch data from local storage, we get a Map of key:value pairs. When we give just 1 key (the URL), we get 1 pair.
 //We only need the value (the URL's tagList), not the entire Map. This function extracts the value.
 function GetTagListFromFetchedMap(storedInfo){
-    tagList = storedInfo[Object.keys(storedInfo)[0]];   //local.get() returns a map (with just 1 key:value pair), from which we extract the value of the first pair
+    tagList = storedInfo[Object.keys(storedInfo)[0]];   //Extract value of the first (and only) key:value pair (the actual tagList)
 
-    if(tagList === undefined)   //This url had no data in local storage -> The returned value is undefined
+    if(tagList === undefined)   //If this url had no data in local storage -> The returned value is undefined
         tagList = [];           //We create an empty list, which is easier to work with
     
     return(tagList);
