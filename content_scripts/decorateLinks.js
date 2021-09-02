@@ -6,19 +6,40 @@ decorateAllLinksInPage();   //Since this script gets loaded as a content script,
 //  ENTRY POINT  //
 ///////////////////
 
-//Fetches all links in the page and processes them
+//Fetches all links in the page and decorates them
 function decorateAllLinksInPage(){
     
-    var linkNodes = document.links; //Get list of all links in the page
+    //Get list of all links in the page
+    var linkNodes = document.links;
 
+    //Make list with URLs of all links in page.
+    //This will let us fetch tagLists of all URLs in a single operation, rather than one by one.
+    urlList = [];
     for(var i=0; i<linkNodes.length; i++)
-        getTagsAndProcessLink(linkNodes[i]);
+        urlList.push( normalizeUrl(linkNodes[i].href) );
+
+    //Fetch taglists in local storage.
+    //This operation is asynchronous and any further operations must be registered with '.then()'.
+    //get() will return a Map of url:tagList pairs.
+    browser.storage.local.get(urlList)
+
+    .then(
+        (mapOfTaglists) => {
+            //For each link in the page, extract its tagList and decorate it
+            for(var i=0; i<linkNodes.length; i++){
+                tagList = mapOfTaglists[ normalizeUrl(linkNodes[i].href) ];
+                AddOrRemoveDecorationsToLink(linkNodes[i], tagList);
+            }
+        } ,
+        onStorageGetError
+    )
+
 }
 
 
 
 //Given a single html link node, fetches associated tag(s) and proceeds to decorate it
-function getTagsAndProcessLink(linkNode){
+function decorateSingleLink(linkNode){
    
     const url = normalizeUrl(linkNode.href);
 
