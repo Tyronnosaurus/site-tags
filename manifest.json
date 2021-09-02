@@ -7,7 +7,7 @@
 
 
   "background": {
-    "scripts": ["./aux_scripts/normalizeUrl.js", "./background_scripts/context_menu.js", "./background_scripts/action_button.js"]
+    "scripts": ["./aux_scripts/aux_functions.js", "./background_scripts/context_menu.js", "./background_scripts/action_button.js"]
   },
 
 
@@ -22,7 +22,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["./aux_scripts/normalizeUrl.js", "./content_scripts/decorateLinks.js"],
+      "js": ["./aux_scripts/aux_functions.js", "./content_scripts/decorateLinks.js"],
       "run_at":"document_end",
       "css": ["./css/icon_style.css"]
     }

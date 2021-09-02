@@ -29,3 +29,27 @@ function deleteSubstringAtStart(mainstring, substring){
         return(mainstring);
     }
 }
+
+
+
+///////////////////
+// LOCAL STORAGE //
+///////////////////
+
+//When we fetch data from local storage, we get a Map of key:value pairs. We just gave 1 key (the URL), so we get 1 pair.
+//We only need the value (the URL's tagList), not the entire Map. This function extracts the value.
+function GetTagListFromFetchedMap(storedInfo){
+    tagList = storedInfo[Object.keys(storedInfo)[0]];   //local.get() returns a map (with just 1 key:value pair), from which we extract the value of the first pair
+
+    if(tagList === undefined)   //This url had no data in local storage -> The returned value is undefined
+        tagList = [];           //We create an empty list, which is easier to work with
+    
+    return(tagList);
+}
+
+
+//Run when there's a failure to retrieve a value from local storage
+//Note that not finding a value for a specified key is not an error (it just returns 'undefined')
+function onStorageGetError(error) {
+    console.log(`Error: ${error}`);
+}
