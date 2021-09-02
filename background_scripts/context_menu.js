@@ -144,10 +144,13 @@ function ToggleTagInLocalStorage(url, tag, tab){
     )
 
 
-    //Step 4: Send command to tab to run code to redecorate links
+    //Step 4: Send command to tab to redecorate links pointing to this URL
     .then(
-        () => { browser.tabs.sendMessage(tab.id , "cmd: update icons"); }
-    );
+        () => {
+            message = {"cmd": "update single url" , "url": url};
+            browser.tabs.sendMessage(tab.id , message);
+        }
+    )
  
 }
 

@@ -6,21 +6,40 @@ decorateAllLinksInPage();   //Since this script gets loaded as a content script,
 //  ENTRY POINT  //
 ///////////////////
 
-//Fetches all links in the page and decorates them
+//Finds all links in the page and decorates them.
+//We use this when a page is loaded and we need to decorate all links at once
 function decorateAllLinksInPage(){
     
     //Get list of all links in the page
     var linkNodes = document.links;
 
-    //Make list with URLs of all links in page.
-    //This will let us fetch tagLists of all URLs in a single operation, rather than one by one.
-    urlList = [];
-    for(var i=0; i<linkNodes.length; i++)
-        urlList.push( normalizeUrl(linkNodes[i].href) );
+    fetchLocalDataAndDecorateLinks(linkNodes);
+}
+
+
+
+//Finds for links pointing to a given URL and decorates them.
+//We use this when the user updates a tag for one URL and we only need to update those links in the page pointing to that URL.
+function decorateOnlyLinksWithSpecificHref(targetHref){
+    //Get list of all links in the page, but filter for only those with the URL we want
+    //Note: document.Links is an HTMLcollection. We need to convert it to Array to use filter()
+    var linkNodes = Array.from(document.links);
+    linkNodes = linkNodes.filter(item => normalizeUrl(item.href) === targetHref);
+    
+    fetchLocalDataAndDecorateLinks(linkNodes);
+}
+
+
+
+function fetchLocalDataAndDecorateLinks(linkNodes){
+
+    //Get list of all links' URLs. This will let us fetch tagLists of all URLs in a single operation,
+    //rather than one by one (since fetching from local storage can be slow)
+    urlList = linkListToUrlList(linkNodes);
 
     //Fetch taglists in local storage.
     //This operation is asynchronous and any further operations must be registered with '.then()'.
-    //get() will return a Map of url:tagList pairs.
+    //get() will return a Map of url:tagList pairs. which is passed to the function inside '.then()'.
     browser.storage.local.get(urlList)
 
     .then(
@@ -28,38 +47,21 @@ function decorateAllLinksInPage(){
             //For each link in the page, extract its tagList and decorate it
             for(var i=0; i<linkNodes.length; i++){
                 tagList = mapOfTaglists[ normalizeUrl(linkNodes[i].href) ];
+                if(tagList === undefined) tagList = [];  //If url had no data stored -> Returned value is undefined -> We convert it to an empty list
                 AddOrRemoveDecorationsToLink(linkNodes[i], tagList);
             }
         } ,
         onStorageGetError
     )
-
 }
 
 
-
-//Given a single html link node, fetches associated tag(s) and proceeds to decorate it
-function decorateSingleLink(linkNode){
-   
-    const url = normalizeUrl(linkNode.href);
-
-    //Retrive this URL's tagList from local storage.
-    //This operation is asynchronous (returns a promise). We need to use .then(nextFunction) to register any operation that must be done afterwards.
-    //Note: In '.then()' chains, whatever a function returns is used as the argument for the function in the next 'then()'.
-    browser.storage.local.get(url)
-
-    //Step 1: Retrieve url's tagList from local storage
-    //Since we also need to pass 'linkNode' to it, we create an arrow function that just takes 'storedMap' and wrap a function that takes both params.
-    .then(
-        (storedInfo) => { return( GetTagListFromFetchedMap(storedInfo) ); } , //Postprocess fetched data to extract the info we want only (the tagList)
-        onStorageGetError
-    )
-
-    //Step 2: Update shown icons
-    .then(
-        (tagList) => { AddOrRemoveDecorationsToLink(linkNode, tagList); }
-    )
-
+//Given a list of HTML links, return list of their URLs
+function linkListToUrlList(linkNodes){
+    urlList = [];
+    for(var i=0; i<linkNodes.length; i++)
+        urlList.push( normalizeUrl(linkNodes[i].href) );
+    return(urlList);
 }
 
 
@@ -176,7 +178,8 @@ function getCurrentlyAppliedTags(linkNode){
 
 browser.runtime.onMessage.addListener(
     (message) => {
-        if (message == "cmd: update icons")
-            decorateAllLinksInPage();
+        
+        if (message["cmd"] == "update single url"){
+            decorateOnlyLinksWithSpecificHref(message["url"]);}
     }
 );
